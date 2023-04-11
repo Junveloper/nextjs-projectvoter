@@ -1,11 +1,11 @@
 import Layout from "@/components/Layout";
 import { WithUnauth } from "@/components/WithUnauth";
 import usePostUtility from "@/uilities/client/usePostUtility";
-import classNames from "@/uilities/insertClasses";
+import { classNames } from "@/uilities/generalUtils";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
-interface RegisterFormFormData {
+interface RegisterFormData {
 	email: string;
 	name: string;
 	password: string;
@@ -22,11 +22,11 @@ function Register() {
 		formState: { errors },
 		clearErrors,
 		watch,
-	} = useForm<RegisterFormFormData>();
+	} = useForm<RegisterFormData>();
 
 	const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-	const onValid = (data: RegisterFormFormData) => {
+	const onValid = (data: RegisterFormData) => {
 		if (isLoading) {
 			return;
 		}

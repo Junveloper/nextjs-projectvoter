@@ -7,14 +7,14 @@ interface UsePostUtilityState<T> {
 	error?: AxiosError;
 }
 
-interface PostUtilityOptions<T> {
+interface PostUtilityOptions {
 	method?: "GET" | "POST" | "DELETE" | "PATCH" | "PUT";
 	multipart?: boolean;
-	body: T;
+	body: any;
 }
 
 type PostUtilityReturn<T> = [
-	(options: PostUtilityOptions<T>) => void,
+	(options: PostUtilityOptions) => void,
 	UsePostUtilityState<T>
 ];
 
@@ -27,7 +27,7 @@ export default function usePostUtility<T = any>(
 		error: undefined,
 	});
 
-	async function mutate(options: PostUtilityOptions<T>) {
+	async function mutate(options: PostUtilityOptions) {
 		const { method = "post", body } = options;
 		setState((prev) => ({ ...prev, isLoading: true }));
 		try {

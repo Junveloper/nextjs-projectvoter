@@ -2,12 +2,12 @@ import Layout from "@/components/Layout";
 import { WithUnauth } from "@/components/WithUnauth";
 import usePostUtility from "@/uilities/client/usePostUtility";
 import useUser from "@/uilities/client/useUser";
-import classNames from "@/uilities/insertClasses";
+import { classNames } from "@/uilities/generalUtils";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
-interface LoginFormFormData {
+interface LoginFormData {
 	email: string;
 	password: string;
 }
@@ -17,11 +17,11 @@ function Login() {
 		usePostUtility("/api/auth/login");
 	const router = useRouter();
 	const { mutate } = useUser();
-	const { register, handleSubmit } = useForm<LoginFormFormData>();
+	const { register, handleSubmit } = useForm<LoginFormData>();
 
 	const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-	const onValid = async (formData: LoginFormFormData) => {
+	const onValid = async (formData: LoginFormData) => {
 		if (isLoading) {
 			return;
 		}

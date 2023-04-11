@@ -7,38 +7,41 @@ async function handler(
 	req: NextApiRequest,
 	res: NextApiResponse<ResponseType>
 ) {
-	if (req.method === "PATCH") {
+	if (req.method === "GET") {
 		const {
-			body: { programId },
+			query: { id },
 			session: { user: userSession },
 		} = req;
-		if (!programId || !userSession?.id) {
-			return res.status(400).json({ ok: false, error: "Missing fields" });
+
+		if (!id || !userSession?.id) {
+			return res
+				.status(400)
+				.json({ ok: false, error: "Invalid request" });
 		}
 		const user = await client.user.findFirstOrThrow({
 			where: { id: Number(userSession.id) },
 		});
 		const program = await client.program.findFirstOrThrow({
-			where: {
-				id: Number(programId),
-			},
+			where: { id: Number(id) },
+			include: { participants: true },
 		});
-		if (program?.userId !== user?.id) {
-			return res.status(403).json({ ok: false, error: "Unauthorized" });
+		if (user.id !== program.userId) {
+			return res.status(403).json({
+				ok: false,
+				error: "You are not authorized to do this",
+			});
 		}
-		await client.user.update({
-			where: { id: Number(userSession.id) },
-			data: { currentProgramId: Number(programId) },
-		});
+
 		return res.json({
 			ok: true,
+			program,
 		});
 	}
 }
 
 export default withSession(
 	withHandler({
-		methods: ["PATCH"],
+		methods: ["GET"],
 		handler,
 	})
 );

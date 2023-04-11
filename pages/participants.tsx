@@ -8,15 +8,20 @@ import { Fragment, useEffect, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { PhotoIcon } from "@heroicons/react/24/solid";
 import Image from "next/image";
-import classNames from "@/uilities/insertClasses";
+import { classNames } from "@/uilities/generalUtils";
 import uploadImage from "@/pages/api/uploadImage";
 import { cloudflareImageBaseURL } from "./config";
+import Link from "next/link";
+import { Participant } from "@prisma/client";
+import DeletePrompt from "@/components/DeletePrompt";
+import axios from "axios";
 
-interface SwitchProgramFormData {
+export interface SwitchProgramFormData {
 	programId: number;
 }
 
-interface ParticipantFormFormData {
+interface ParticipantFormData {
+	id?: number;
 	name: string;
 	summary: string;
 	programId: number;
@@ -26,7 +31,7 @@ interface ParticipantFormFormData {
 function Participants() {
 	const {
 		data: programsData,
-		error: programsError,
+		// error: programsError,
 		mutate: mutatePrograms,
 	} = useSWR<ProgramsResponse>("api/programs");
 
@@ -34,8 +39,9 @@ function Participants() {
 		register: registerParticipant,
 		handleSubmit: handleParticipantSubmit,
 		setValue: setParticipantSetValue,
+		getValues: getParticipantValues,
 		reset: resetParticipantForm,
-	} = useForm<ParticipantFormFormData>();
+	} = useForm<ParticipantFormData>();
 
 	const { register, handleSubmit, setValue } =
 		useForm<SwitchProgramFormData>();
@@ -54,7 +60,7 @@ function Participants() {
 		{
 			data: participantData,
 			isLoading: participantLoading,
-			error: participantError,
+			// error: participantError,
 		},
 	] = usePostUtility("/api/participants");
 
@@ -63,7 +69,6 @@ function Participants() {
 			mutatePrograms();
 			resetParticipantForm();
 			setPhoto(undefined);
-			setOpen(false);
 		}
 	}, [
 		participantData,
@@ -72,7 +77,7 @@ function Participants() {
 		resetParticipantForm,
 	]);
 
-	const [photo, setPhoto] = useState<File | undefined>(undefined);
+	const [photo, setPhoto] = useState<File | string | undefined>(undefined);
 	const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		if (event.target.files && event?.target?.files[0]) {
 			setPhoto(event?.target?.files[0]);
@@ -80,6 +85,23 @@ function Participants() {
 	};
 
 	const [open, setOpen] = useState(false);
+
+	const [deleteTarget, setDeleteTarget] = useState<{
+		message: string;
+		url: string;
+		isPatch?: boolean;
+	} | null>(null);
+
+	const hideDeletePrompt = () => {
+		setDeleteTarget(null);
+	};
+
+	const showDeletePrompt = (participant: Participant) => {
+		setDeleteTarget({
+			message: `Are you sure you want to delete this project (${participant.name})? This action cannot be undone`,
+			url: `/api/participants/${participant.id}`,
+		});
+	};
 
 	const onValid = (formData: SwitchProgramFormData) => {
 		if (isLoading) {
@@ -90,11 +112,12 @@ function Participants() {
 	const [isUploading, setIsUploading] = useState(false);
 
 	const onValidParticipantSubmit = async ({
+		id,
 		name,
 		summary,
 		image,
 		programId,
-	}: ParticipantFormFormData) => {
+	}: ParticipantFormData) => {
 		if (participantLoading || isUploading) {
 			return;
 		}
@@ -104,7 +127,34 @@ function Participants() {
 			imageId = await uploadImage(image[0]);
 			setIsUploading(false);
 		}
-		postParticipant({ body: { name, summary, image: imageId, programId } });
+		if (!id) {
+			setOpen(false);
+			return postParticipant({
+				body: { name, summary, image: imageId, programId },
+			});
+		}
+		const putRequest = await axios.put(`/api/participants/${id}`, {
+			id,
+			name,
+			summary,
+			image: imageId,
+			programId,
+		});
+		if (putRequest.data.ok) {
+			setOpen(false);
+			mutatePrograms();
+		}
+	};
+
+	const showEditModal = (participant: Participant) => {
+		setParticipantSetValue("id", participant.id);
+		setParticipantSetValue("name", participant.name);
+		setParticipantSetValue("summary", participant.summary);
+		setParticipantSetValue("programId", participant.programId);
+		if (participant.image) {
+			setPhoto(participant.image);
+		}
+		setOpen(true);
 	};
 
 	return (
@@ -151,6 +201,27 @@ function Participants() {
 							<button className="rounded bg-green-600 px-2 text-xs font-semibold text-white shadow-sm hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600 h-9 sm:ml-1">
 								View
 							</button>
+							<Link
+								href={`/programs/${programsData?.currentProgram.id}/participants`}
+								target="_blank"
+								rel="noopener"
+							>
+								<button
+									className="rounded bg-orange-600 px-2 text-xs font-semibold text-white shadow-sm hover:bg-orange-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600 h-9 flex items-center justify-center w-fit ml-1"
+									type="button"
+								>
+									<svg
+										viewBox="0 0 512 512"
+										className="w-5 h-5"
+									>
+										<path
+											d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zM432 248a24 24 0 1 1 0 48 24 24 0 1 1 0-48z"
+											fill="white"
+										/>
+									</svg>
+									<div className="ml-3">Participants</div>
+								</button>
+							</Link>
 						</div>
 					</form>
 				</div>
@@ -163,11 +234,21 @@ function Participants() {
 						Add a participant
 					</button>
 				</div>
+				<div className="sm:flex sm:items-center">
+					<div className="sm:flex-auto">
+						<h1 className="text-base font-semibold leading-6 text-gray-900">
+							Participants
+						</h1>
+						<p className="mt-2 text-sm text-gray-700">
+							Add a participant to the program you have selected.
+						</p>
+					</div>
+				</div>
 				<div className="mt-8 flow-root">
 					<div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
 						<div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
-							<div className="px-6 sm:px-0 sm:overflow-hidden shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg">
-								<table className="divide-y divide-gray-300">
+							<div className="sm:px-0 sm:overflow-hidden shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg">
+								<table className="divide-y divide-gray-300 w-full">
 									<thead className="bg-gray-50">
 										<tr>
 											<th
@@ -181,6 +262,13 @@ function Participants() {
 												className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
 											>
 												Summary
+											</th>
+
+											<th
+												scope="col"
+												className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
+											>
+												Actions
 											</th>
 										</tr>
 									</thead>
@@ -204,22 +292,29 @@ function Participants() {
 															{
 																participant.summary
 															}
-															Minim commodo duis
-															ex reprehenderit
-															cillum in commodo
-															dolore consectetur.
-															Eu commodo dolor
-															ullamco tempor
-															nostrud eu veniam
-															velit eu nulla. In
-															cupidatat incididunt
-															velit eiusmod dolor
-															eu quis. Ut
-															adipisicing ullamco
-															id ut excepteur
-															commodo officia ex
-															et duis.
 														</div>
+													</td>
+													<td className="whitespace-nowrap py-4 text-sm font-medium text-gray-900">
+														<button
+															className="rounded bg-green-600 px-2 text-xs font-semibold text-white shadow-sm hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600 h-9 sm:ml-1"
+															onClick={() =>
+																showEditModal(
+																	participant
+																)
+															}
+														>
+															Edit
+														</button>
+														<button
+															className="rounded bg-red-600 px-2 text-xs font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600 h-9 sm:ml-1"
+															onClick={() =>
+																showDeletePrompt(
+																	participant
+																)
+															}
+														>
+															Delete
+														</button>
 													</td>
 												</tr>
 											)
@@ -268,6 +363,10 @@ function Participants() {
 												onValidParticipantSubmit
 											)}
 										>
+											<input
+												{...registerParticipant("id")}
+												className="hidden"
+											></input>
 											<div>
 												<h2 className="text-base font-semibold leading-7 text-gray-900">
 													Add a participant
@@ -388,7 +487,7 @@ function Participants() {
 																		className="mx-auto h-12 w-12 text-gray-300"
 																		aria-hidden="true"
 																	/>
-																	<div className="mt-4 flex text-sm leading-6 text-gray-600">
+																	<div className="mt-4 flex text-sm leading-6 text-gray-600 justify-center">
 																		<label
 																			htmlFor="image"
 																			className="relative cursor-pointer rounded-md bg-white font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500"
@@ -411,12 +510,6 @@ function Participants() {
 																				}
 																			/>
 																		</label>
-																		<p className="pl-1">
-																			or
-																			drag
-																			and
-																			drop
-																		</p>
 																	</div>
 																	<p className="text-xs leading-5 text-gray-600">
 																		PNG,
@@ -429,9 +522,14 @@ function Participants() {
 															{photo && (
 																<div className="sm:w-32 sm:h-32 relative border w-24 h-24">
 																	<Image
-																		src={URL.createObjectURL(
-																			photo
-																		)}
+																		src={
+																			typeof photo ===
+																			"string"
+																				? `${cloudflareImageBaseURL}/${photo}/avatar`
+																				: URL.createObjectURL(
+																						photo
+																				  )
+																		}
 																		alt="Participant Photo"
 																		className="object-scale-down w-full h-full"
 																		fill
@@ -458,7 +556,11 @@ function Participants() {
 															{isLoading ||
 															isUploading
 																? "Please Wait"
-																: "Add a Participant"}
+																: getParticipantValues(
+																		"id"
+																  )
+																? "Update Participant"
+																: "Add Participant"}
 														</button>
 													</div>
 												</div>
@@ -470,6 +572,15 @@ function Participants() {
 						</div>
 					</Dialog>
 				</Transition.Root>
+			)}
+			{deleteTarget && (
+				<DeletePrompt
+					message={deleteTarget.message}
+					url={deleteTarget.url}
+					onHide={hideDeletePrompt}
+					refetch={mutatePrograms}
+					isPatch={deleteTarget.isPatch}
+				></DeletePrompt>
 			)}
 		</Layout>
 	);

@@ -17,14 +17,23 @@ async function handler(
 				.status(400)
 				.json({ ok: false, error: "User is not logged in" });
 		}
+		const user = await client.user.findFirstOrThrow({
+			where: { id: Number(userSession.id) },
+		});
+
 		const programData = {
 			programName: name,
 			defaultVoteCount: Number(defaultVoteCount),
 			userId: userSession.id,
 		};
 
-		await client.program.create({
+		const program = await client.program.create({
 			data: { ...programData },
+		});
+
+		await client.user.update({
+			where: { id: user.id },
+			data: { currentProgramId: program.id },
 		});
 
 		return res.json({
@@ -51,6 +60,7 @@ async function handler(
 				where: { id: user.currentProgramId },
 				include: {
 					participants: true,
+					_count: { select: { votingTickets: true } },
 				},
 			});
 			return res.json({
@@ -62,6 +72,7 @@ async function handler(
 			const currentProgram = await client.program.findFirst({
 				where: { userId: user?.id },
 			});
+
 			return res.json({
 				ok: true,
 				programs: programs,

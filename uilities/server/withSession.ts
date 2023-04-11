@@ -5,6 +5,12 @@ declare module "iron-session" {
 		user?: {
 			id: number;
 		};
+		ticket?: {
+			id: number;
+			voteKey: string;
+			programId: number;
+			remainingVotes: number;
+		};
 	}
 }
 

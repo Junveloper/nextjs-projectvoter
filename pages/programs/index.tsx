@@ -3,37 +3,41 @@ import { WithAuth } from "@/components/WithAuth";
 import { Fragment, useEffect, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import usePostUtility from "@/uilities/client/usePostUtility";
-import classNames from "@/uilities/insertClasses";
+import { classNames } from "@/uilities/generalUtils";
 import { useForm } from "react-hook-form";
-import { Participant, Program } from "@prisma/client";
+import { Participant, Program, VotingTicket } from "@prisma/client";
 import useSWR from "swr";
 
-interface ProgramFormFormData {
+interface ProgramFormData {
 	name: string;
 	defaultVoteCount: number;
 }
 
-interface ProgramWithParticipants extends Program {
-	participants: Participant[];
+export interface ProgramWithAttributes extends Program {
+	participants?: Participant[];
+	votingTickets?: VotingTicket[];
+	_count: {
+		votingTickets: number;
+	};
 }
 
 export interface ProgramsResponse {
 	ok: boolean;
-	programs: ProgramWithParticipants[];
-	currentProgram: ProgramWithParticipants;
+	programs: ProgramWithAttributes[];
+	currentProgram: ProgramWithAttributes;
 }
 
 function Programs() {
 	const [open, setOpen] = useState(false);
 	const [postProgram, { data: postData, isLoading, error: postError }] =
 		usePostUtility("/api/programs");
-	const { register, handleSubmit, reset } = useForm<ProgramFormFormData>();
+	const { register, handleSubmit, reset } = useForm<ProgramFormData>();
 	const {
 		data,
 		error: getError,
 		mutate,
 	} = useSWR<ProgramsResponse>("api/programs");
-	const onValid = (formData: ProgramFormFormData) => {
+	const onValid = (formData: ProgramFormData) => {
 		if (isLoading) {
 			return;
 		}
@@ -54,7 +58,7 @@ function Programs() {
 				<div className="flex min-h-full flex-col justify-center py-12 sm:px-6 lg:px-8">
 					<div className="sm:mx-auto sm:w-full sm:max-w-md">
 						<h2 className="text-center text-3xl font-bold tracking-tight text-gray-900">
-							Program Page
+							Programs Page
 						</h2>
 					</div>
 					<div className="sm:mx-auto sm:w-full sm:max-w-md flex justify-center">

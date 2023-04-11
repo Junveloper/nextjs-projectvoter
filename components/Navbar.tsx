@@ -3,7 +3,7 @@ import { Disclosure, Menu, Transition } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { useRouter } from "next/router";
 import Link from "next/link";
-import classNames from "@/uilities/insertClasses";
+import { classNames } from "@/uilities/generalUtils";
 import useUser from "@/uilities/client/useUser";
 import axios from "axios";
 
@@ -96,7 +96,7 @@ export default function NavBar() {
 									</Link>
 								</div>
 								<div className="hidden sm:ml-6 sm:block">
-									<div className="flex space-x-4">
+									<div className="flex space-x-4 items-center justify-center text-center">
 										{navigation.map((item) => (
 											<a
 												key={item.name}
