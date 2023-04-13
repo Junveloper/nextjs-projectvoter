@@ -2,6 +2,7 @@ import Layout from "@/components/Layout";
 import { WithUnauth } from "@/components/WithUnauth";
 import usePostUtility from "@/uilities/client/usePostUtility";
 import { classNames } from "@/uilities/generalUtils";
+import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
@@ -12,10 +13,14 @@ interface RegisterFormData {
 	confirmPassword: string;
 }
 
+interface RegisterResponse {
+	ok: boolean;
+	message: string;
+}
 function Register() {
 	const [registerUser, { data, isLoading, error }] =
-		usePostUtility("/api/auth/register");
-
+		usePostUtility<RegisterResponse>("/api/auth/register");
+	const router = useRouter();
 	const {
 		register,
 		handleSubmit,
@@ -41,7 +46,12 @@ function Register() {
 				?.error;
 			setErrorMessage(errorMessage);
 		}
-	}, [error]);
+		if (!isLoading && data?.ok) {
+			router.push(
+				`/login?message=${"You have successfully registered. Please login to continue"}`
+			);
+		}
+	}, [data, error, isLoading, router]);
 
 	return (
 		<Layout>

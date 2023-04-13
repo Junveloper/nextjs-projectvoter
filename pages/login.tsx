@@ -16,6 +16,7 @@ function Login() {
 	const [loginUser, { data, isLoading, error }] =
 		usePostUtility("/api/auth/login");
 	const router = useRouter();
+	const { message } = router.query;
 	const { mutate } = useUser();
 	const { register, handleSubmit } = useForm<LoginFormData>();
 
@@ -54,6 +55,11 @@ function Login() {
 
 					<div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
 						<div className="bg-white px-4 py-8 shadow sm:rounded-lg sm:px-10">
+							{message && (
+								<div className="w-full rounded-xl bg-green-200 p-2 text-xs text-black">
+									{message}
+								</div>
+							)}
 							<form
 								className="space-y-6"
 								onSubmit={handleSubmit(onValid)}

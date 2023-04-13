@@ -40,6 +40,7 @@ async function handler(
 			ok: true,
 		});
 	}
+
 	if (req.method === "GET") {
 		const { user: userSession } = req.session;
 		if (!userSession?.id) {
@@ -59,7 +60,11 @@ async function handler(
 			const currentProgram = await client.program.findUnique({
 				where: { id: user.currentProgramId },
 				include: {
-					participants: true,
+					participants: {
+						include: {
+							_count: { select: { votes: true } },
+						},
+					},
 					_count: { select: { votingTickets: true } },
 				},
 			});

@@ -7,14 +7,22 @@ import { classNames } from "@/uilities/generalUtils";
 import { useForm } from "react-hook-form";
 import { Participant, Program, VotingTicket } from "@prisma/client";
 import useSWR from "swr";
+import DeletePrompt from "@/components/DeletePrompt";
 
 interface ProgramFormData {
+	id?: number;
 	name: string;
 	defaultVoteCount: number;
 }
 
+interface ParticipantWithVoteCount extends Participant {
+	_count: {
+		votes: number;
+	};
+}
+
 export interface ProgramWithAttributes extends Program {
-	participants?: Participant[];
+	participants?: ParticipantWithVoteCount[];
 	votingTickets?: VotingTicket[];
 	_count: {
 		votingTickets: number;
@@ -29,19 +37,30 @@ export interface ProgramsResponse {
 
 function Programs() {
 	const [open, setOpen] = useState(false);
+
+	const { register, handleSubmit, reset, setValue, getValues } =
+		useForm<ProgramFormData>();
+
 	const [postProgram, { data: postData, isLoading, error: postError }] =
-		usePostUtility("/api/programs");
-	const { register, handleSubmit, reset } = useForm<ProgramFormData>();
+		usePostUtility(
+			getValues("id")
+				? `/api/programs/${getValues("id")}`
+				: `/api/programs`
+		);
 	const {
 		data,
 		error: getError,
 		mutate,
 	} = useSWR<ProgramsResponse>("api/programs");
+
 	const onValid = (formData: ProgramFormData) => {
 		if (isLoading) {
 			return;
 		}
-		postProgram({ body: formData });
+		postProgram({
+			body: formData,
+			method: getValues("id") ? "PATCH" : "POST",
+		});
 	};
 
 	useEffect(() => {
@@ -51,6 +70,34 @@ function Programs() {
 			setOpen(false);
 		}
 	}, [postData, isLoading, mutate, reset]);
+
+	const [deleteTarget, setDeleteTarget] = useState<{
+		message: string;
+		url: string;
+		isPatch?: boolean;
+	} | null>(null);
+
+	const hideDeletePrompt = () => {
+		setDeleteTarget(null);
+	};
+
+	const showEditModal = (program: Program) => {
+		setValue("id", program.id);
+		setValue("name", program.programName);
+		setValue("defaultVoteCount", program.defaultVoteCount);
+		setOpen(true);
+	};
+
+	const showAddModal = () => {
+		reset();
+		setOpen(true);
+	};
+	const showDeletePrompt = (program: Program) => {
+		setDeleteTarget({
+			message: `Are you sure you want to delete this program (${program.programName})? This action cannot be undone`,
+			url: `/api/programs/${program.id}`,
+		});
+	};
 
 	return (
 		<Layout>
@@ -65,7 +112,7 @@ function Programs() {
 						<button
 							type="submit"
 							className="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 my-3"
-							onClick={() => setOpen(true)}
+							onClick={showAddModal}
 						>
 							Add a program
 						</button>
@@ -101,6 +148,12 @@ function Programs() {
 													>
 														Default Votes
 													</th>
+													<th
+														scope="col"
+														className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
+													>
+														Actions
+													</th>
 												</tr>
 											</thead>
 											<tbody className="divide-y divide-gray-200 bg-white">
@@ -116,6 +169,28 @@ function Programs() {
 																{
 																	program.defaultVoteCount
 																}
+															</td>
+															<td className="whitespace-nowrap py-4 text-sm font-medium text-gray-900">
+																<button
+																	className="rounded bg-green-600 px-2 text-xs font-semibold text-white shadow-sm hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600 h-9 sm:ml-1"
+																	onClick={() =>
+																		showEditModal(
+																			program
+																		)
+																	}
+																>
+																	Edit
+																</button>
+																<button
+																	className="rounded bg-red-600 px-2 text-xs font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600 h-9 sm:ml-1"
+																	onClick={() =>
+																		showDeletePrompt(
+																			program
+																		)
+																	}
+																>
+																	Delete
+																</button>
 															</td>
 														</tr>
 													)
@@ -166,7 +241,9 @@ function Programs() {
 													as="h3"
 													className="text-base font-semibold leading-6 text-gray-900"
 												>
-													Register a program
+													{!getValues("id")
+														? "Register a program"
+														: "Edit a program"}
 												</Dialog.Title>
 												<div className="mt-2">
 													<form
@@ -175,6 +252,12 @@ function Programs() {
 														)}
 													>
 														<div>
+															<input
+																{...register(
+																	"id"
+																)}
+																className="hidden"
+															></input>
 															<label
 																htmlFor="name"
 																className="block text-sm font-medium leading-6 text-gray-900"
@@ -235,7 +318,11 @@ function Programs() {
 															>
 																{isLoading
 																	? "Please Wait"
-																	: "Register"}
+																	: !getValues(
+																			"id"
+																	  )
+																	? "Register a program"
+																	: "Edit a program"}
 															</button>
 														</div>
 													</form>
@@ -248,6 +335,15 @@ function Programs() {
 						</div>
 					</Dialog>
 				</Transition.Root>
+			)}
+			{deleteTarget && (
+				<DeletePrompt
+					message={deleteTarget.message}
+					url={deleteTarget.url}
+					onHide={hideDeletePrompt}
+					refetch={mutate}
+					isPatch={deleteTarget.isPatch}
+				></DeletePrompt>
 			)}
 		</Layout>
 	);

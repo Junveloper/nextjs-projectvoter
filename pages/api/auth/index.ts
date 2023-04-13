@@ -14,6 +14,8 @@ async function handler(
 				ok: false,
 				error: "User is not logged in",
 			});
+			req.session.user = undefined;
+			req.session.save();
 			return res.status(200).end();
 		}
 		const userProfile = await client.user.findUnique({

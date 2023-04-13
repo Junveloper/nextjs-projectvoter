@@ -25,7 +25,7 @@ model Program {
   id               Int            @id @default(autoincrement())
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
-  user             User           @relation(fields: [userId], references: [id])
+  user             User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId           Int
   programName      String
   defaultVoteCount Int
@@ -37,7 +37,7 @@ model Participant {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  program   Program  @relation(fields: [programId], references: [id])
+  program   Program  @relation(fields: [programId], references: [id], onDelete: Cascade)
   programId Int
   name      String
   summary   String   @db.MediumText
@@ -49,7 +49,7 @@ model VotingTicket {
   id             Int      @id @default(autoincrement())
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
-  program        Program  @relation(fields: [programId], references: [id])
+  program        Program  @relation(fields: [programId], references: [id], onDelete: Cascade)
   programId      Int
   voteKey        String   @unique
   remainingVotes Int
@@ -60,8 +60,8 @@ model Vote {
   id             Int          @id @default(autoincrement())
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
-  votingTicket   VotingTicket @relation(fields: [votingTicketId], references: [id])
+  votingTicket   VotingTicket @relation(fields: [votingTicketId], references: [id], onDelete: Cascade)
   votingTicketId Int
-  participant    Participant  @relation(fields: [participantId], references: [id])
+  participant    Participant  @relation(fields: [participantId], references: [id], onDelete: Cascade)
   participantId  Int
 }

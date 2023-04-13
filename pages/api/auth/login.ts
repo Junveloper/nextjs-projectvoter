@@ -15,6 +15,8 @@ async function handler(
 		} = req;
 
 		if (userSession?.id) {
+			req.session.user = undefined;
+			req.session.save();
 			return res
 				.status(400)
 				.json({ ok: false, error: "User is already logged in" });
