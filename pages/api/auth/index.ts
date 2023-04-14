@@ -9,6 +9,13 @@ async function handler(
 ) {
 	if (req.method === "GET") {
 		const { user } = req.session;
+		if (!user) {
+			res.json({
+				ok: false,
+				error: "User is not logged in",
+			});
+			return res.status(200).end();
+		}
 		const userProfile = await client.user.findFirst({
 			where: { id: user?.id },
 			select: {
@@ -23,7 +30,7 @@ async function handler(
 			req.session.destroy();
 			res.json({
 				ok: false,
-				error: "User is not logged in",
+				error: "User does not exist",
 			});
 			return res.status(200).end();
 		}

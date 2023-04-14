@@ -7,16 +7,7 @@ async function handler(
 	res: NextApiResponse<ResponseType>
 ) {
 	if (req.method === "GET") {
-		const { user } = req.session;
-		if (!user) {
-			res.json({
-				ok: false,
-				error: "User is not logged in",
-			});
-			return res.status(200).end();
-		}
-		req.session.user = undefined;
-		await req.session.save();
+		req.session.destroy();
 		return res.json({ ok: true });
 	}
 }
