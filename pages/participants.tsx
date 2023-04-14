@@ -145,6 +145,10 @@ function Participants() {
 		}
 	};
 
+	const showAddModal = () => {
+		resetParticipantForm();
+		setOpen(true);
+	};
 	const showEditModal = (participant: Participant) => {
 		setParticipantSetValue("id", participant.id);
 		setParticipantSetValue("name", participant.name);
@@ -240,7 +244,7 @@ function Participants() {
 							<button
 								type="submit"
 								className="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 my-3"
-								onClick={() => setOpen(true)}
+								onClick={showAddModal}
 							>
 								Add a participant
 							</button>
