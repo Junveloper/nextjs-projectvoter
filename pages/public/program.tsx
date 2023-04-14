@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect } from "react";
 import useSWR from "swr";
-import { cloudflareImageBaseURL } from "../config";
+import { cloudflareImageBaseURL } from "../../uilities/config";
 import axios from "axios";
 import { classNames } from "@/uilities/generalUtils";
 

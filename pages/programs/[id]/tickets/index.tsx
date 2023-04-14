@@ -2,7 +2,7 @@ import Layout from "@/components/Layout";
 import { ProgramWithAttributes, ProgramsResponse } from "../..";
 import useSWR from "swr";
 import Image from "next/image";
-import { cloudflareImageBaseURL } from "../../../config";
+import { cloudflareImageBaseURL } from "../../../../uilities/config";
 import { QRCodeSVG } from "qrcode.react";
 import { useRouter } from "next/router";
 import { chunk } from "@/uilities/generalUtils";

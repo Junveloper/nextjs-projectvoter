@@ -10,7 +10,7 @@ import { PhotoIcon } from "@heroicons/react/24/solid";
 import Image from "next/image";
 import { classNames } from "@/uilities/generalUtils";
 import uploadImage from "@/pages/api/uploadImage";
-import { cloudflareImageBaseURL } from "./config";
+import { cloudflareImageBaseURL } from "../uilities/config";
 import Link from "next/link";
 import { Participant } from "@prisma/client";
 import DeletePrompt from "@/components/DeletePrompt";
