@@ -6,9 +6,19 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+  provider     = "mysql"
+  url          = env("DATABASE_URL")
+  relationMode = "prisma"
 }
+
+// generator client {
+//   provider = "prisma-client-js"
+// }
+
+// datasource db {
+//   provider = "mysql"
+//   url      = env("DATABASE_URL")
+// }
 
 model User {
   id               Int       @id @default(autoincrement())
@@ -31,6 +41,8 @@ model Program {
   defaultVoteCount Int
   participants     Participant[]
   votingTickets    VotingTicket[]
+
+  @@index([userId])
 }
 
 model Participant {
@@ -43,6 +55,8 @@ model Participant {
   summary   String   @db.MediumText
   image     String?
   votes     Vote[]
+
+  @@index([programId])
 }
 
 model VotingTicket {
@@ -54,6 +68,8 @@ model VotingTicket {
   voteKey        String   @unique
   remainingVotes Int
   votes          Vote[]
+
+  @@index([programId])
 }
 
 model Vote {
@@ -64,4 +80,6 @@ model Vote {
   votingTicketId Int
   participant    Participant  @relation(fields: [participantId], references: [id], onDelete: Cascade)
   participantId  Int
+
+  @@index([votingTicketId])
 }

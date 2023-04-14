@@ -164,166 +164,214 @@ function Participants() {
 						Participants Page
 					</h2>
 				</div>
-				<div className="sm:mx-auto sm:w-full sm:max-w-md flex justify-center mt-3">
-					<form onSubmit={handleSubmit(onValid)}>
-						<label
-							htmlFor="program"
-							className="block text-sm font-medium leading-6 text-gray-900 text-center"
-						>
-							Currently Selected Program:
-						</label>
-						<div className="flex items-center mt-3">
-							{programsData ? (
-								<select
-									{...register("programId")}
-									defaultValue={
-										programsData?.currentProgram?.id
-									}
-									id="program"
-									className="block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6 h-9"
+				{programsData?.programs &&
+				programsData?.programs?.length > 0 ? (
+					<>
+						<div className="sm:mx-auto sm:w-full sm:max-w-md flex justify-center mt-3">
+							<form onSubmit={handleSubmit(onValid)}>
+								<label
+									htmlFor="program"
+									className="block text-sm font-medium leading-6 text-gray-900 text-center"
 								>
-									{programsData?.programs?.map((program) => {
-										return (
-											<option
-												key={program.id}
-												value={program.id}
-											>
-												{program.programName}
-											</option>
-										);
-									})}
-								</select>
-							) : (
-								<div>loading...</div>
-							)}
-
-							<button className="rounded bg-green-600 px-2 text-xs font-semibold text-white shadow-sm hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600 h-9 sm:ml-1">
-								View
-							</button>
-							<Link
-								href={`/programs/${programsData?.currentProgram?.id}/participants`}
-								target="_blank"
-								rel="noopener"
-							>
-								<button
-									className="rounded bg-orange-600 px-2 text-xs font-semibold text-white shadow-sm hover:bg-orange-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600 h-9 flex items-center justify-center w-fit ml-1"
-									type="button"
-								>
-									<svg
-										viewBox="0 0 512 512"
-										className="w-5 h-5"
-									>
-										<path
-											d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zM432 248a24 24 0 1 1 0 48 24 24 0 1 1 0-48z"
-											fill="white"
-										/>
-									</svg>
-									<div className="ml-3">Participants</div>
-								</button>
-							</Link>
-						</div>
-					</form>
-				</div>
-				<div className="sm:mx-auto sm:w-full sm:max-w-md flex justify-center">
-					<button
-						type="submit"
-						className="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 my-3"
-						onClick={() => setOpen(true)}
-					>
-						Add a participant
-					</button>
-				</div>
-				<div className="sm:flex sm:items-center">
-					<div className="sm:flex-auto">
-						<h1 className="text-base font-semibold leading-6 text-gray-900">
-							Participants
-						</h1>
-						<p className="mt-2 text-sm text-gray-700">
-							Add a participant to the program you have selected.
-						</p>
-					</div>
-				</div>
-				<div className="mt-8 flow-root">
-					<div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-						<div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
-							<div className="sm:px-0 sm:overflow-hidden shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg">
-								<table className="divide-y divide-gray-300 w-full">
-									<thead className="bg-gray-50">
-										<tr>
-											<th
-												scope="col"
-												className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6"
-											>
-												Participant
-											</th>
-											<th
-												scope="col"
-												className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
-											>
-												Summary
-											</th>
-
-											<th
-												scope="col"
-												className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
-											>
-												Actions
-											</th>
-										</tr>
-									</thead>
-									<tbody className="divide-y divide-gray-200 bg-white">
-										{programsData?.currentProgram?.participants?.map(
-											(participant) => (
-												<tr key={participant.id}>
-													<td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
-														{participant.name}
-													</td>
-													<td className="whitespace-normal px-3 py-4 text-sm text-gray-500">
-														<div className="sm:w-36 sm:h-36 w-full aspect-square relative float-left mr-5">
-															<Image
-																src={`${cloudflareImageBaseURL}/${participant.image}/avatar`}
-																className="object-scale-down"
-																fill
-																alt={`${participant.name} Image`}
-															></Image>
-														</div>
-														<div>
+									Currently Selected Program:
+								</label>
+								<div className="flex items-center mt-3">
+									{programsData ? (
+										<select
+											{...register("programId")}
+											defaultValue={
+												programsData?.currentProgram?.id
+											}
+											id="program"
+											className="block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6 h-9"
+										>
+											{programsData?.programs?.map(
+												(program) => {
+													return (
+														<option
+															key={program.id}
+															value={program.id}
+														>
 															{
-																participant.summary
+																program.programName
 															}
-														</div>
-													</td>
-													<td className="whitespace-nowrap py-4 text-sm font-medium text-gray-900">
-														<button
-															className="rounded bg-green-600 px-2 text-xs font-semibold text-white shadow-sm hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600 h-9 sm:ml-1"
-															onClick={() =>
-																showEditModal(
-																	participant
-																)
-															}
-														>
-															Edit
-														</button>
-														<button
-															className="rounded bg-red-600 px-2 text-xs font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600 h-9 sm:ml-1"
-															onClick={() =>
-																showDeletePrompt(
-																	participant
-																)
-															}
-														>
-															Delete
-														</button>
-													</td>
-												</tr>
-											)
-										)}
-									</tbody>
-								</table>
+														</option>
+													);
+												}
+											)}
+										</select>
+									) : (
+										<div>loading...</div>
+									)}
+
+									<button
+										className="rounded bg-green-600 px-2 text-xs font-semibold text-white shadow-sm hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600 h-9 sm:ml-1"
+										type="button"
+									>
+										View
+									</button>
+									<Link
+										href={`/programs/${programsData?.currentProgram?.id}/participants`}
+										target="_blank"
+										rel="noopener"
+									>
+										<button
+											className="rounded bg-orange-600 px-2 text-xs font-semibold text-white shadow-sm hover:bg-orange-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600 h-9 flex items-center justify-center w-fit ml-1"
+											type="button"
+										>
+											<svg
+												viewBox="0 0 512 512"
+												className="w-5 h-5"
+											>
+												<path
+													d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zM432 248a24 24 0 1 1 0 48 24 24 0 1 1 0-48z"
+													fill="white"
+												/>
+											</svg>
+											<div className="ml-3">
+												Participants
+											</div>
+										</button>
+									</Link>
+								</div>
+							</form>
+						</div>
+						<div className="sm:mx-auto sm:w-full sm:max-w-md flex justify-center">
+							<button
+								type="submit"
+								className="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 my-3"
+								onClick={() => setOpen(true)}
+							>
+								Add a participant
+							</button>
+						</div>
+					</>
+				) : (
+					<div className="my-3 text-center">
+						You must add a program to start registering
+						participants.{" "}
+						<Link
+							href={"/programs"}
+							className="text-blue-500 underline"
+						>
+							Click here
+						</Link>{" "}
+						to add a program
+					</div>
+				)}
+
+				{programsData?.currentProgram && (
+					<>
+						<div className="sm:flex sm:items-center">
+							<div className="sm:flex-auto">
+								<h1 className="text-base font-semibold leading-6 text-gray-900">
+									Participants
+								</h1>
+								<p className="mt-2 text-sm text-gray-700">
+									Add a participant to the program you have
+									selected.
+								</p>
 							</div>
 						</div>
-					</div>
-				</div>
+						<div className="mt-8 flow-root">
+							<div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+								<div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
+									<div className="sm:px-0 sm:overflow-hidden shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg">
+										<table className="divide-y divide-gray-300 w-full">
+											<thead className="bg-gray-50">
+												<tr>
+													<th
+														scope="col"
+														className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6"
+													>
+														Participant
+													</th>
+													<th
+														scope="col"
+														className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
+													>
+														Summary
+													</th>
+
+													<th
+														scope="col"
+														className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
+													>
+														Actions
+													</th>
+												</tr>
+											</thead>
+											<tbody className="divide-y divide-gray-200 bg-white">
+												{programsData?.currentProgram
+													?.participants?.length ===
+													0 && (
+													<tr>
+														<td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
+															You currently have
+															no participants
+															registered to this
+															program.
+														</td>
+													</tr>
+												)}
+												{programsData?.currentProgram?.participants?.map(
+													(participant) => (
+														<tr
+															key={participant.id}
+														>
+															<td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
+																{
+																	participant.name
+																}
+															</td>
+															<td className="whitespace-normal px-3 py-4 text-sm text-gray-500">
+																<div className="sm:w-36 sm:h-36 w-full aspect-square relative float-left mr-5">
+																	<Image
+																		src={`${cloudflareImageBaseURL}/${participant.image}/avatar`}
+																		className="object-scale-down"
+																		fill
+																		alt={`${participant.name} Image`}
+																	></Image>
+																</div>
+																<div>
+																	{
+																		participant.summary
+																	}
+																</div>
+															</td>
+															<td className="whitespace-nowrap py-4 text-sm font-medium text-gray-900">
+																<button
+																	className="rounded bg-green-600 px-2 text-xs font-semibold text-white shadow-sm hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600 h-9 sm:ml-1"
+																	onClick={() =>
+																		showEditModal(
+																			participant
+																		)
+																	}
+																>
+																	Edit
+																</button>
+																<button
+																	className="rounded bg-red-600 px-2 text-xs font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600 h-9 sm:ml-1"
+																	onClick={() =>
+																		showDeletePrompt(
+																			participant
+																		)
+																	}
+																>
+																	Delete
+																</button>
+															</td>
+														</tr>
+													)
+												)}
+											</tbody>
+										</table>
+									</div>
+								</div>
+							</div>
+						</div>
+					</>
+				)}
 			</div>
 			{open && (
 				<Transition.Root show={open} as={Fragment}>
@@ -447,6 +495,7 @@ function Participants() {
 														</label>
 														<div className="mt-2 sm:col-span-2 sm:mt-0">
 															<select
+																title="Program"
 																disabled
 																className="bg-slate-300"
 															>

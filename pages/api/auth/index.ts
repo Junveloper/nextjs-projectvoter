@@ -9,17 +9,8 @@ async function handler(
 ) {
 	if (req.method === "GET") {
 		const { user } = req.session;
-		if (!user) {
-			res.json({
-				ok: false,
-				error: "User is not logged in",
-			});
-			req.session.user = undefined;
-			req.session.save();
-			return res.status(200).end();
-		}
-		const userProfile = await client.user.findUnique({
-			where: { id: req.session.user?.id },
+		const userProfile = await client.user.findFirst({
+			where: { id: user?.id },
 			select: {
 				id: true,
 				name: true,
@@ -27,6 +18,15 @@ async function handler(
 				currentProgramId: true,
 			},
 		});
+		if (!userProfile) {
+			req.session.user = undefined;
+			req.session.destroy();
+			res.json({
+				ok: false,
+				error: "User is not logged in",
+			});
+			return res.status(200).end();
+		}
 		return res.json({
 			ok: true,
 			user: userProfile,

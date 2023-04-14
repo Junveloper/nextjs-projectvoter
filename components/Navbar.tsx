@@ -6,6 +6,8 @@ import Link from "next/link";
 import { classNames } from "@/uilities/generalUtils";
 import useUser from "@/uilities/client/useUser";
 import axios from "axios";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faHouse } from "@fortawesome/free-solid-svg-icons";
 
 export default function NavBar() {
 	const { user, mutate } = useUser();
@@ -85,13 +87,23 @@ export default function NavBar() {
 									<Link href={"/"}>
 										<div
 											className={classNames(
-												"h-8 w-32 text-white font-bold flex items-center justify-center",
+												"h-8 w-32 text-white font-bold sm:flex items-center justify-center hidden",
 												isHome
 													? "bg-gray-900 rounded-md px-3 py-2"
 													: ""
 											)}
 										>
 											Project Voter
+										</div>
+										<div
+											className={classNames(
+												"flex sm:hidden text-white p-3",
+												isHome
+													? "bg-gray-900 rounded-md"
+													: ""
+											)}
+										>
+											<FontAwesomeIcon icon={faHouse} />
 										</div>
 									</Link>
 								</div>

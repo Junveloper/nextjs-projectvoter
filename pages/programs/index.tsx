@@ -157,6 +157,17 @@ function Programs() {
 												</tr>
 											</thead>
 											<tbody className="divide-y divide-gray-200 bg-white">
+												{data?.programs?.length ===
+													0 && (
+													<tr>
+														<td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
+															No programs are
+															registered. Add a
+															program to get
+															started!
+														</td>
+													</tr>
+												)}
 												{data?.programs?.map(
 													(program) => (
 														<tr key={program.id}>

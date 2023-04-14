@@ -75,15 +75,17 @@ export default function RegisterTicket() {
 
 	useEffect(() => {
 		if (!isLoading && votingTicket?.id) {
+			mutate();
 			router.push("/public/program");
 		}
-	}, [votingTicket, isLoading, router]);
+	}, [votingTicket, isLoading, router, mutate]);
 
 	useEffect(() => {
 		if (!ticketLoading && data?.ok) {
+			mutate();
 			router.push("/public/program");
 		}
-	}, [data, ticketLoading, router]);
+	}, [data, ticketLoading, router, mutate]);
 
 	return (
 		<>
