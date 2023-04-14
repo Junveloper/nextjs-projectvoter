@@ -41,6 +41,10 @@ async function handler(
 			});
 		}
 
+		await client.program.delete({
+			where: { id: Number(id) },
+		});
+
 		const defaultProgram = await client.program.findFirst({
 			where: { userId: user.id },
 		});
@@ -56,10 +60,6 @@ async function handler(
 				data: { currentProgramId: null },
 			});
 		}
-
-		await client.program.delete({
-			where: { id: Number(id) },
-		});
 
 		return res.json({ ok: true });
 	}

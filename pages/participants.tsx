@@ -575,7 +575,7 @@ function Participants() {
 																				)}
 																				id="image"
 																				type="file"
-																				accept="image/png, image/jpeg, image/gif, image/jpg"
+																				accept="image/*"
 																				className="sr-only"
 																				onChange={
 																					handleImageChange

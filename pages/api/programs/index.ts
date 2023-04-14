@@ -68,22 +68,15 @@ async function handler(
 					_count: { select: { votingTickets: true } },
 				},
 			});
-			return res.json({
-				ok: true,
-				programs: programs,
-				currentProgram: currentProgram,
-			});
-		} else {
-			const currentProgram = await client.program.findFirst({
-				where: { userId: user?.id },
-			});
-
-			return res.json({
-				ok: true,
-				programs: programs,
-				currentProgram: currentProgram,
-			});
 		}
+		const currentProgram = await client.program.findFirst({
+			where: { userId: user?.id },
+		});
+		return res.json({
+			ok: true,
+			programs: programs,
+			currentProgram: currentProgram,
+		});
 	}
 }
 
