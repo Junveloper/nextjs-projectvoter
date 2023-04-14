@@ -294,7 +294,7 @@ function Participants() {
 													<tr>
 														<th
 															scope="col"
-															className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6"
+															className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6 w-24 sm:max-w-[200px] sm:min-w-[200px]"
 														>
 															Participant
 														</th>
@@ -304,10 +304,9 @@ function Participants() {
 														>
 															Summary
 														</th>
-
 														<th
 															scope="col"
-															className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
+															className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 hidden sm:block"
 														>
 															Actions
 														</th>
@@ -335,10 +334,34 @@ function Participants() {
 																	participant.id
 																}
 															>
-																<td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
+																<td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 sm:text-left text-center">
 																	{
 																		participant.name
 																	}
+																	<div className="flex flex-col items-center justify-center sm:hidden gap-y-2">
+																		<button
+																			className="rounded bg-green-600 px-2 text-xs font-semibold text-white shadow-sm hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600 h-9 sm:ml-1 w-24 ml-2"
+																			type="button"
+																			onClick={() =>
+																				showEditModal(
+																					participant
+																				)
+																			}
+																		>
+																			Edit
+																		</button>
+																		<button
+																			className="rounded bg-red-600 px-2 text-xs font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600 h-9 sm:ml-1 w-24 ml-2"
+																			type="button"
+																			onClick={() =>
+																				showDeletePrompt(
+																					participant
+																				)
+																			}
+																		>
+																			Delete
+																		</button>
+																	</div>
 																</td>
 																<td className="whitespace-normal px-3 py-4 text-sm text-gray-500">
 																	<div className="sm:w-36 sm:h-36 w-full aspect-square relative float-left mr-5">
@@ -362,7 +385,7 @@ function Participants() {
 																		}
 																	</div>
 																</td>
-																<td className="whitespace-nowrap py-4 text-sm font-medium text-gray-900">
+																<td className="whitespace-nowrap py-4 text-sm font-medium text-gray-900 hidden sm:block">
 																	<button
 																		className="rounded bg-green-600 px-2 text-xs font-semibold text-white shadow-sm hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600 h-9 sm:ml-1"
 																		onClick={() =>
