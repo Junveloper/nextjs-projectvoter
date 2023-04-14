@@ -41,10 +41,21 @@ async function handler(
 			});
 		}
 
-		await client.user.update({
-			where: { id: user.id },
-			data: { currentProgramId: null },
+		const defaultProgram = await client.program.findFirst({
+			where: { userId: user.id },
 		});
+
+		if (defaultProgram) {
+			await client.user.update({
+				where: { id: user.id },
+				data: { currentProgramId: defaultProgram.id },
+			});
+		} else {
+			await client.user.update({
+				where: { id: user.id },
+				data: { currentProgramId: null },
+			});
+		}
 
 		await client.program.delete({
 			where: { id: Number(id) },
