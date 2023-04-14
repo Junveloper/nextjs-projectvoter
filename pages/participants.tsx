@@ -147,6 +147,7 @@ function Participants() {
 
 	const showAddModal = () => {
 		resetParticipantForm();
+		setPhoto(undefined);
 		setOpen(true);
 	};
 	const showEditModal = (participant: Participant) => {
