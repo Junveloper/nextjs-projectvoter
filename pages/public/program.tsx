@@ -2,7 +2,7 @@ import useTicket from "@/uilities/client/useTicket";
 import { Participant, Program, VotingTicket, Vote } from "@prisma/client";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import useSWR from "swr";
 import { cloudflareImageBaseURL } from "../../uilities/config";
 import axios from "axios";
@@ -43,6 +43,8 @@ export default function PublicProgram() {
 		}
 	}, [votingTicket, isLoading, mutate, mutateProgram]);
 
+	const [isVoting, setIsVoting] = useState(false);
+
 	useEffect(() => {
 		if (!loadingProgram && data) {
 			mutateProgram();
@@ -50,22 +52,32 @@ export default function PublicProgram() {
 	}, [data, mutateProgram, loadingProgram]);
 
 	const castVote = async (id: number) => {
+		if (isVoting) {
+			return;
+		}
+		setIsVoting(true);
 		const postRequest = await axios.post("/api/vote", {
 			participantId: id,
 		});
 		if (postRequest.data.ok) {
 			mutate();
 			mutateProgram();
+			setIsVoting(false);
 		}
 	};
 
 	const revokeVote = async (id: number) => {
+		if (isVoting) {
+			return;
+		}
+		setIsVoting(true);
 		const patchRequest = await axios.patch("/api/vote", {
 			participantId: id,
 		});
 		if (patchRequest.data.ok) {
 			mutate();
 			mutateProgram();
+			setIsVoting(false);
 		}
 	};
 
@@ -163,12 +175,19 @@ export default function PublicProgram() {
 															</td>
 															<td className="whitespace-normal px-3 py-4 text-sm text-gray-500">
 																<div className="sm:w-36 sm:h-36 w-full aspect-square relative float-left mr-5">
-																	<Image
-																		src={`${cloudflareImageBaseURL}/${participant.image}/avatar`}
-																		className="object-scale-down"
-																		fill
-																		alt={`${participant.name} Image`}
-																	></Image>
+																	{participant.image ? (
+																		<Image
+																			src={`${cloudflareImageBaseURL}/${participant.image}/avatar`}
+																			className="object-scale-down"
+																			fill
+																			alt={`${participant.name} Image`}
+																		></Image>
+																	) : (
+																		<div className="flex bg-slate-300 rounded-3xl w-full h-full justify-center items-center">
+																			No
+																			Image
+																		</div>
+																	)}
 																</div>
 																<div>
 																	{
@@ -190,7 +209,10 @@ export default function PublicProgram() {
 																				votingTicket?.remainingVotes >
 																					0
 																					? "bg-green-600 focus-visible:outline-green-600 hover:bg-green-500 "
-																					: "cursor-not-allowed bg-slate-600 focus-visible:outline-slate-600 hover:bg-slate-500"
+																					: "cursor-not-allowed bg-slate-600 focus-visible:outline-slate-600 hover:bg-slate-500",
+																				isVoting
+																					? "cursor-not-allowed bg-slate-600 hover:bg-slate-500 focus-visible:outline-slate-600"
+																					: ""
 																			)}
 																			onClick={() =>
 																				castVote(
@@ -199,24 +221,37 @@ export default function PublicProgram() {
 																			}
 																			disabled={
 																				votingTicket?.remainingVotes <=
-																				0
+																					0 ||
+																				isVoting
 																			}
 																		>
 																			{votingTicket?.remainingVotes <=
 																			0
 																				? "No Votes Left"
+																				: isVoting
+																				? "Please Wait"
 																				: "Vote"}
 																		</button>
 																	) : (
 																		<button
-																			className="rounded bg-red-600 px-2 text-xs font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600 h-9 sm:ml-1"
+																			className={classNames(
+																				"rounded bg-red-600 px-2 text-xs font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600 h-9 sm:ml-1",
+																				isVoting
+																					? "cursor-not-allowed bg-slate-600 hover:bg-slate-500 focus-visible:outline-slate-600"
+																					: ""
+																			)}
 																			onClick={() =>
 																				revokeVote(
 																					participant.id
 																				)
 																			}
+																			disabled={
+																				isVoting
+																			}
 																		>
-																			Revoke
+																			{isVoting
+																				? "Please Wait"
+																				: "Revoke"}
 																		</button>
 																	)}
 																</div>
