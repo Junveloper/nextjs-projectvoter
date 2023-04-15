@@ -29,38 +29,29 @@ interface votingTicketResponse {
 }
 
 export default function PublicProgram() {
-	const { votingTicket, isLoading, mutate } = useTicket();
+	const { votingTicket } = useTicket();
 	const {
 		data,
 		mutate: mutateProgram,
 		isLoading: loadingProgram,
 	} = useSWR<votingTicketResponse>("api/ticket/program");
 
-	useEffect(() => {
-		if (!isLoading && votingTicket) {
-			mutate();
-			mutateProgram();
-		}
-	}, [votingTicket, isLoading, mutate, mutateProgram]);
-
 	const [isVoting, setIsVoting] = useState(false);
-
-	useEffect(() => {
-		if (!loadingProgram && data) {
-			mutateProgram();
-		}
-	}, [data, mutateProgram, loadingProgram]);
 
 	const castVote = async (id: number) => {
 		if (isVoting) {
 			return;
 		}
+		if (!data || !votingTicket) {
+			return;
+		}
 		setIsVoting(true);
+
 		const postRequest = await axios.post("/api/vote", {
 			participantId: id,
 		});
 		if (postRequest.data.ok) {
-			mutate();
+			console.log(data);
 			mutateProgram();
 			setIsVoting(false);
 		}
@@ -75,7 +66,6 @@ export default function PublicProgram() {
 			participantId: id,
 		});
 		if (patchRequest.data.ok) {
-			mutate();
 			mutateProgram();
 			setIsVoting(false);
 		}
@@ -122,10 +112,11 @@ export default function PublicProgram() {
 						</div>
 						<div className="sm:mx-auto sm:w-full sm:max-w-4xl mt-2 sm:px-0 px-2">
 							<div className="sm:flex-auto">
-								{votingTicket?.remainingVotes > 0 ? (
+								{data?.votingTicket?.remainingVotes &&
+								data?.votingTicket?.remainingVotes > 0 ? (
 									<h1 className="text-base font-semibold leading-6 text-green-900">
 										Remaining Votes:{" "}
-										{votingTicket?.remainingVotes}
+										{data?.votingTicket?.remainingVotes}
 									</h1>
 								) : (
 									<h1 className="text-base font-semibold leading-6 text-red-900">
@@ -206,7 +197,9 @@ export default function PublicProgram() {
 																		<button
 																			className={classNames(
 																				"rounded  px-2 text-xs font-semibold text-white shadow-sm  focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2  h-9 sm:ml-1",
-																				votingTicket?.remainingVotes >
+																				data
+																					?.votingTicket
+																					?.remainingVotes >
 																					0
 																					? "bg-green-600 focus-visible:outline-green-600 hover:bg-green-500 "
 																					: "cursor-not-allowed bg-slate-600 focus-visible:outline-slate-600 hover:bg-slate-500",
@@ -220,12 +213,16 @@ export default function PublicProgram() {
 																				)
 																			}
 																			disabled={
-																				votingTicket?.remainingVotes <=
+																				data
+																					?.votingTicket
+																					?.remainingVotes <=
 																					0 ||
 																				isVoting
 																			}
 																		>
-																			{votingTicket?.remainingVotes <=
+																			{data
+																				?.votingTicket
+																				?.remainingVotes <=
 																			0
 																				? "No Votes Left"
 																				: isVoting
