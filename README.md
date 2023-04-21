@@ -4,6 +4,14 @@ Project Voter is a web application that allows users to create and participate i
 
 Original project voter was created using Laravel but I have made this in NextJS to demonstrate my skills and experience in another popular framework (and to demonstrate that I am a very keen learner).
 
+# Demo
+https://insurance.gcastle.net/
+
+Demo Account
+username/email: demo@demo.com
+password: demodemo
+
+
 ## Features
 - User authentication and authorization
 - Create and manage voting programs
