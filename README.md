@@ -33,8 +33,8 @@ password: demodemo
 To get started with the project, follow the steps below:
 
 1. Clone the repository:
-git clone https://github.com/yourusername/project-voter.git
-cd project-voter
+git clone https://github.com/Junveloper/nextjs-projectvoter
+cd nextjs-projectvoter
 
 2. Install dependencies:
 npm install
